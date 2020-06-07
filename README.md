@@ -1,3 +1,5 @@
+Inspired by rxi's classic module. classit is a module made for easy implementation of classes in Lua through just one function!
+```lua
 --------------------------
 -- Example fruit object --
 
@@ -63,3 +65,4 @@ print(redApple) --> "A very tasty Red Apple that has a mass of 5 grams."
 redApple() --> Calls redApple:bite()
 print(redApple) --> A very tasty Red Apple that has a mass of 2 grams.
 print(redApple.keepsDoctorAway) --> true
+```
