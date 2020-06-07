@@ -23,7 +23,7 @@ function fruit:__tostring() -- shorthand for fruit.prototype:__tostring()
 	return ("A very tasty %s that has a mass of %d gram%s."):format(self.name, self.mass, self.mass == 1 and "" or "s")
 end
 
-function fruit:__call()
+function fruit:__call() -- shorthand for fruit.prototype:__call()
 	self:bite()
 end
 
