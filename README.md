@@ -19,7 +19,7 @@ function fruit:bite()
 	self.mass = self.mass / 2
 end
 
-function fruit.mt:__tostring()
+function fruit:__tostring() -- shorthand for fruit.mt:__tostring()
 	return ("A very tasty %s that has a mass of %d grams."):format(self.name, self.mass)
 end
 
@@ -37,7 +37,7 @@ function apple:init(mass, appleType)
 	self.appleType = appleType
 end
 
-function apple.mt:__tostring()
+function apple:__tostring() -- shorthand for apple.mt:__tostring()
 	return ("A very tasty %s %s that has a mass of %d grams."):format(self.appleType, self.name, self.mass)
 end
 
