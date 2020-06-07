@@ -1,4 +1,4 @@
-Inspired by rxi's classic module. classit is a module made for easy implementation of classes in Lua through just one function!
+Inspired by rxi's classic module. classit is a Lua module made for easy implementation of classes through just one function!
 ```lua
 --------------------------
 -- Example fruit object --
