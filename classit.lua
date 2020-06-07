@@ -1,7 +1,7 @@
 local declared = {}
 local function classit(name, super)
-	assert(type(name) == "string" and super == nil or type(super) == "string")
-	
+	assert(type(name) == "string" and not declared[name] and super == nil or type(super) == "string")
+
 	local superClass, class, objectMt = super and assert(declared[super]) or nil, {}, {}
 	local classMt = {
 		__newindex = function(t, i, v)
