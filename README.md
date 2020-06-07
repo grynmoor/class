@@ -1,4 +1,4 @@
-class is a module consisting of a single function that allows for the implementation of classes in Lua.
+class is a single-function module that allows for the implementation of classes in Lua.
 
 ```lua
 local class = require("class")
