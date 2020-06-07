@@ -1,14 +1,22 @@
 local declared = {}
-local function class(name, super)
+local function classit(name, super)
 	assert(type(name) == "string" and super == nil or type(super) == "string")
 	
-	local superclass = super and assert(declared[super]) or nil
-	local newclass, mt = {}, {}
+	local superClass = super and assert(declared[super]) or nil
+	local newClass, mt = {}, {}
 
-	newclass.className = name
-	newclass.mt = mt
+	newClass.className = name
+	newClass.mt = mt
 
-	setmetatable(newclass, {
+	setmetatable(newClass, {
+		__newindex = function(t, i, v)
+			if i:find("__") == 1 then
+				print(i)
+				mt[i] = v
+			else
+				rawset(newClass, i, v)
+			end;
+		end;
 		__call = function(t, ...)
 			local obj = setmetatable({}, mt)
 			obj:init(...)
@@ -16,30 +24,30 @@ local function class(name, super)
 		end;
 	})
 
-	if superclass then 
-		for i, v in pairs(superclass.mt) do
+	if superClass then 
+		for i, v in pairs(superClass.mt) do
 			if i:find("__") == 1 then
 				mt[i] = v
 			end
 		end
-		getmetatable(newclass).__index = superclass.mt.__index
-		newclass.super = superclass
+		getmetatable(newClass).__index = superClass.mt.__index
+		rawset(newClass, "super", superClass)
 	else
-		function newclass:init(...) return end
-		function newclass:is(str)
+		rawset(newClass, "init", function(self, ...) return end)
+		rawset(newClass, "is", function(self, str)
 			local obj = self
 			while obj do
 				if obj.className == str then return true end
 				obj = obj.super
 			end
 			return false
-		end
+		end)
 		function mt:__tostring() return self.className end		
 	end
-	mt.__index = newclass
+	mt.__index = newClass
 
-	declared[name] = newclass
-	return newclass
+	declared[name] = newClass
+	return newClass
 end
 
-return class
+return classit
