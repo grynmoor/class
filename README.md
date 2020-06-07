@@ -1,12 +1,13 @@
-class is a single-function module that allows for the implementation of classes in Lua.
+Inspired by rxi's classic module.
+classit is a single-function module that allows for the implementation of classes in Lua.
 
 ```lua
-local class = require("class")
+local classit = require("classit")
 
 --------------------------
 -- Example fruit object --
 
-local fruit = class("fruit")
+local fruit = classit("fruit")
 
 function fruit:init(mass, name)
 	assert(type(mass) == "number" and name == nil or type(name) == "string")
@@ -25,7 +26,7 @@ end
 --------------------------
 -- Example apple object --
 
-local apple = class("apple", "fruit") --> class apple inherits from class fruit
+local apple = classit("apple", "fruit") --> class apple inherits from class fruit
 
 apple.keepsDoctorAway = true -- static variable
 
