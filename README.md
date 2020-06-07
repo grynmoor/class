@@ -16,11 +16,15 @@ function fruit:init(mass, name)
 end
 
 function fruit:bite()
-	self.mass = self.mass / 2
+	self.mass = math.floor(self.mass / 2)
 end
 
-function fruit:__tostring() -- shorthand for fruit.mt:__tostring()
-	return ("A very tasty %s that has a mass of %d grams."):format(self.name, self.mass)
+function fruit:__tostring() -- shorthand for fruit.prototype:__tostring()
+	return ("A very tasty %s that has a mass of %d gram%s."):format(self.name, self.mass, self.mass == 1 and "" or "s")
+end
+
+function fruit:__call()
+	self:bite()
 end
 
 --------------------------
@@ -37,8 +41,8 @@ function apple:init(mass, appleType)
 	self.appleType = appleType
 end
 
-function apple:__tostring() -- shorthand for apple.mt:__tostring()
-	return ("A very tasty %s %s that has a mass of %d grams."):format(self.appleType, self.name, self.mass)
+function apple:__tostring() -- shorthand for apple.prototype:__tostring()
+	return ("A very tasty %s %s that has a mass of %d gram%s."):format(self.appleType, self.name, self.mass, self.mass == 1 and "" or "s")
 end
 
 -------------------------
@@ -48,8 +52,10 @@ local tastyFruit = fruit(4) --> Creates fruit object with a mass of 4 and the na
 print(tastyFruit) --> "A very tasty Fruit that has a mass of 4 grams."
 print(tastyFruit:is("fruit")) --> true
 print(tastyFruit:is("apple")) --> false
-tastyFruit:bite() --> Halves the mass of the fruit object
+tastyFruit:bite() --> Halves then rounds down the mass of the fruit object
 print(tastyFruit) --> "A very tasty Fruit that has a mass of 2 grams."
+tastyFruit() --> Calls tastyFruit:bite()
+print(tastyFruit) --> "A very tasty Fruit that has a mass of 1 gram."
 
 -------------------------
 -- Apple demonstration --
@@ -58,7 +64,11 @@ local redApple = apple(10, "Red") --> Creates apple object with a mass of 10, th
 print(redApple) --> "A very tasty Red Apple that has a mass of 10 grams."
 print(redApple:is("apple")) --> true
 print(redApple:is("fruit")) --> true
-redApple:bite()
+redApple:bite() --> Halves then rounds down the mass of the fruit object
 print(redApple) --> "A very tasty Red Apple that has a mass of 5 grams."
+redApple() --> Calls redApple:bite()
+print(redApple) --> A very tasty Red Apple that has a mass of 2 grams.
 print(redApple.keepsDoctorAway) --> true
+
+return classit
 ```
