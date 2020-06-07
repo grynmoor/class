@@ -5,7 +5,7 @@ local function classit(name, super)
 	local superClass, class, objectMt = super and assert(declared[super]) or nil, {}, {}
 	local classMt = {
 		__newindex = function(t, i, v)
-			if i:find("__") == 1 then
+			if i:sub(1, 2) == "__" then
 				objectMt[i] = v
 			else
 				rawset(class, i, v)
@@ -23,7 +23,7 @@ local function classit(name, super)
 
 	if superClass then 
 		for i, v in pairs(superClass.objectMt) do
-			if i:find("__") == 1 then
+			if i:sub(1, 2) == "__" then
 				objectMt[i] = v
 			end
 		end
