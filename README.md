@@ -1,9 +1,3 @@
-Inspired by rxi's classic module.
-classit is a module made for easy implementation of classes in Lua through just one function!
-
-```lua
-local classit = require("classit")
-
 --------------------------
 -- Example fruit object --
 
@@ -19,11 +13,11 @@ function fruit:bite()
 	self.mass = math.floor(self.mass / 2)
 end
 
-function fruit:__tostring() -- shorthand for fruit.prototype:__tostring()
+function fruit:__tostring()
 	return ("A very tasty %s that has a mass of %d gram%s."):format(self.name, self.mass, self.mass == 1 and "" or "s")
 end
 
-function fruit:__call() -- shorthand for fruit.prototype:__call()
+function fruit:__call()
 	self:bite()
 end
 
@@ -41,7 +35,7 @@ function apple:init(mass, appleType)
 	self.appleType = appleType
 end
 
-function apple:__tostring() -- shorthand for apple.prototype:__tostring()
+function apple:__tostring()
 	return ("A very tasty %s %s that has a mass of %d gram%s."):format(self.appleType, self.name, self.mass, self.mass == 1 and "" or "s")
 end
 
@@ -69,6 +63,3 @@ print(redApple) --> "A very tasty Red Apple that has a mass of 5 grams."
 redApple() --> Calls redApple:bite()
 print(redApple) --> A very tasty Red Apple that has a mass of 2 grams.
 print(redApple.keepsDoctorAway) --> true
-
-return classit
-```
