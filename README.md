@@ -1,5 +1,5 @@
 Inspired by rxi's classic module.
-classit is a single-function module that allows for easy implementation of classes in Lua.
+classit is a module made for easy implementation of classes in Lua through just one function!
 
 ```lua
 local classit = require("classit")
