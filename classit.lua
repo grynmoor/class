@@ -2,36 +2,36 @@ local declared = {}
 local function classit(name, super)
 	assert(type(name) == "string" and super == nil or type(super) == "string")
 	
-	local superClass, newClass, prototype = super and assert(declared[super]) or nil, {}, {}
-	local newClassMt = {
+	local superClass, class, objectMt = super and assert(declared[super]) or nil, {}, {}
+	local classMt = {
 		__newindex = function(t, i, v)
 			if i:find("__") == 1 then
-				prototype[i] = v
+				objectMt[i] = v
 			else
-				rawset(newClass, i, v)
+				rawset(class, i, v)
 			end;
 		end;
 		__call = function(t, ...)
-			local obj = setmetatable({}, prototype)
+			local obj = setmetatable({}, objectMt)
 			obj:init(...)
 			return obj
 		end;
 	}
 
-	newClass.className = name
-	newClass.prototype = prototype
+	class.className = name
+	class.objectMt = objectMt
 
 	if superClass then 
-		for i, v in pairs(superClass.prototype) do
+		for i, v in pairs(superClass.objectMt) do
 			if i:find("__") == 1 then
-				prototype[i] = v
+				objectMt[i] = v
 			end
 		end
-		newClassMt.__index = superClass.prototype.__index
-		newClass.super = superClass
+		classMt.__index = superClass.objectMt.__index
+		class.super = superClass
 	else
-		function newClass:init(...) return end
-		function newClass:is(str)
+		function class:init(...) return end
+		function class:is(str)
 			local obj = self
 			while obj do
 				if obj.className == str then return true end
@@ -39,12 +39,12 @@ local function classit(name, super)
 			end
 			return false
 		end
-		function prototype:__tostring() return self.className end		
+		function objectMt:__tostring() return self.className end		
 	end
-	prototype.__index = newClass
+	objectMt.__index = class
 
-	declared[name] = newClass
-	return setmetatable(newClass, newClassMt)
+	declared[name] = class
+	return setmetatable(class, classMt)
 end
 
 return classit
