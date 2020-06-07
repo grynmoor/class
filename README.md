@@ -59,5 +59,5 @@ print(redApple:is("apple")) --> true
 print(redApple:is("fruit")) --> true
 redApple:bite()
 print(redApple) --> "A very tasty Red Apple that has a mass of 5 grams."
-print(apple.keepsDoctorAway) --> true
+print(redApple.keepsDoctorAway) --> true
 ```
