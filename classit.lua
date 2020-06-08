@@ -6,7 +6,7 @@ local function classit(superClass)
 				objectMt[i] = v
 			else
 				rawset(class, i, v)
-			end;
+			end
 		end;
 		__call = function(t, ...)
 			local obj = setmetatable({}, objectMt)
@@ -24,7 +24,7 @@ local function classit(superClass)
 		classMt.__index = superClass
 		class.super = superClass
 	else
-		if superClass ~= nil then print(("superclass not set due to improper argument - %s"):format(debug.traceback())) end
+		if superClass ~= nil then print(("superclass not set due to improper argument\n%s"):format(debug.traceback())) end
 		function class:init(...) return end
 		function class:is(tbl0)
 			local tbl1 = getmetatable(self).class
