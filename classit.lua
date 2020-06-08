@@ -22,21 +22,42 @@
 	SOFTWARE.
 ]]
 
+-- Dictionary for metamethods
+local metamethods = {
+	__index = true;
+	__newindex = true;
+	__call = true;
+	__concat = true;
+	__unm = true;
+	__add = true;
+	__sub = true;
+	__mul = true;
+	__div = true;
+	__mod = true;
+	__pow = true;
+	__tostring = true;
+	__metatable = true;
+	__eq = true;
+	__lt = true;
+	__le = true;
+	__mode = true;
+}
+
 -- Base methods that all classes will have
--- :init(...) is used for constructing classes, being called immediately after the initialization of a new object
--- All :init(...) methods in inheriting classes must start with class.super.init(self, ...) for things to work as intended!
-local function init(self, ...) return end
+-- :new(...) is used for constructing classes, being called immediately after the initialization of a new object
+-- All :new(...) methods in inheriting classes must start with class.super.new(self, ...) for things to work as intended!
+local function new(self, ...) return end
 -- Type-check method for classes
-local function is(self, tbl0)
-	local tbl1 = self.class
-	while tbl1 do
-		if tbl0 == tbl1 then return true end
-		tbl1 = tbl1.super
+local function is(self, a)
+	local b = self.class
+	while b do
+		if a == b then return true end
+		b = b.super
 	end
 	return false
 end	
 -- Minimal support for mixins
-local function mixin(self, ...)
+local function mix(self, ...)
     for _, item in pairs({...}) do
         for i, v in pairs(item) do
             if self[i] == nil and type(v) == "function" then
@@ -53,7 +74,7 @@ local function classit(superClass)
 	local classMt = {
 		-- Any metamethods (or anything under an index starting with "__") set to 'class' will be moved over to 'objectMt'
 		__newindex = function(t, i, v)
-			if i:sub(1, 2) == "__" then
+			if metamethods[i] then
 				objectMt[i] = v
 			else
 				rawset(class, i, v)
@@ -69,7 +90,7 @@ local function classit(superClass)
 	if type(superClass) == "table" then 
 		-- If inheriting, carry over object metamethods from superclass to new class and begin to reference superclass in lookups
 		for i, v in pairs(superClass.objectMt) do
-			if i:sub(1, 2) == "__" then
+			if metamethods[i] then
 				objectMt[i] = v
 			end
 		end
@@ -78,9 +99,9 @@ local function classit(superClass)
 	else
 		-- If not inheriting, warn user of possible improper argument (if valid) and implement base methods
 		if superClass ~= nil then print(("superclass not set due to improper argument\n%s"):format(debug.traceback())) end
-		class.init = init 
+		class.new = new
 		class.is = is 
-		class.mixin = mixin
+		class.mix = mix
 	end
 	-- Final touches to new class, add self-reference and object metatable, set '__index' for objectMt, and lastly set 'classMt' as a metatable for 'class'
 	class.class = class
