@@ -57,5 +57,4 @@ local function classit(superClass)
 	objectMt.__index = class
 	return setmetatable(class, classMt)
 end
-
 return classit
