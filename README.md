@@ -1,5 +1,7 @@
 Inspired by rxi's classic module. classit is a Lua module made for easy implementation of classes through just one function!
 ```lua
+local classit = require("classit")
+
 --------------------------
 -- Example fruit object --
 
@@ -41,6 +43,23 @@ function apple:__tostring()
 	return ("A very tasty %s %s that has a mass of %d gram%s."):format(self.appleType, self.name, self.mass, self.mass == 1 and "" or "s")
 end
 
+------------------------------
+-- Example stringutil mixin --
+
+local stringutil = classit()
+
+function stringutil:weirdCase(str)
+    local tbl = {}
+    for i = 1, #str do
+        if i % 2 == 1 then
+            table.insert(tbl, str:sub(i, i):upper())
+        else
+           table.insert(tbl, str:sub(i, i):lower())
+        end
+    end
+    return table.concat(tbl)
+end
+
 -------------------------
 -- Fruit demonstration --
 
@@ -65,4 +84,10 @@ print(redApple) --> "A very tasty Red Apple that has a mass of 5 grams."
 redApple() --> Calls redApple:bite()
 print(redApple) --> A very tasty Red Apple that has a mass of 2 grams.
 print(redApple.keepsDoctorAway) --> true
+
+-------------------------
+-- Mixin demonstration --
+
+redApple:mixin(stringutil)
+print(redApple:weirdCase(redApple.name)) --> "ApPlE"
 ```
