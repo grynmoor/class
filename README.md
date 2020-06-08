@@ -3,7 +3,7 @@ Inspired by rxi's classic module. classit is a Lua module made for easy implemen
 --------------------------
 -- Example fruit object --
 
-local fruit = classit("fruit")
+local fruit = classit()
 
 function fruit:init(mass, name)
 	assert(type(mass) == "number" and name == nil or type(name) == "string")
@@ -26,7 +26,7 @@ end
 --------------------------
 -- Example apple object --
 
-local apple = classit("apple", "fruit") --> class apple inherits from class fruit
+local apple = classit(fruit) --> class apple inherits from class fruit
 
 apple.keepsDoctorAway = true -- static variable
 
@@ -46,8 +46,8 @@ end
 
 local tastyFruit = fruit(4) --> Creates fruit object with a mass of 4 and the name "Fruit"
 print(tastyFruit) --> "A very tasty Fruit that has a mass of 4 grams."
-print(tastyFruit:is("fruit")) --> true
-print(tastyFruit:is("apple")) --> false
+print(tastyFruit:is(fruit)) --> true
+print(tastyFruit:is(apple)) --> false
 tastyFruit:bite() --> Halves then rounds down the mass of the fruit object
 print(tastyFruit) --> "A very tasty Fruit that has a mass of 2 grams."
 tastyFruit() --> Calls tastyFruit:bite()
@@ -58,8 +58,8 @@ print(tastyFruit) --> "A very tasty Fruit that has a mass of 1 gram."
 
 local redApple = apple(10, "Red") --> Creates apple object with a mass of 10, the name "Apple", and apple type "Red"
 print(redApple) --> "A very tasty Red Apple that has a mass of 10 grams."
-print(redApple:is("apple")) --> true
-print(redApple:is("fruit")) --> true
+print(redApple:is(fruit)) --> true
+print(redApple:is(apple)) --> true
 redApple:bite() --> Halves then rounds down the mass of the fruit object
 print(redApple) --> "A very tasty Red Apple that has a mass of 5 grams."
 redApple() --> Calls redApple:bite()
