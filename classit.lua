@@ -1,7 +1,7 @@
 local function classit(superClass)
 	local class, objectMt = {}, {}
 	local classMt = {
-		-- Any metamethods (or anything under an index starting with "__") will be moved over to objectMt
+		-- Any metamethods (or anything under an index starting with "__") set to 'class' will be moved over to 'objectMt'
 		__newindex = function(t, i, v)
 			if i:sub(1, 2) == "__" then
 				objectMt[i] = v
