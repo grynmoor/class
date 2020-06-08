@@ -7,7 +7,7 @@ local classit = require("classit")
 
 local fruit = classit()
 
-function fruit:init(mass, name)
+function fruit:new(mass, name)
 	assert(type(mass) == "number" and name == nil or type(name) == "string")
 	self.mass = mass
 	self.name = name or "Fruit"
@@ -32,7 +32,7 @@ local apple = classit(fruit) --> class apple inherits from class fruit
 
 apple.keepsDoctorAway = true -- static variable
 
-function apple:init(mass, appleType)
+function apple:new(mass, appleType)
 	apple.super.init(self, mass, "Apple")
 	assert(type(appleType) == "string")
 	self.mass = mass
@@ -88,6 +88,6 @@ print(redApple.keepsDoctorAway) --> true
 -------------------------
 -- Mixin demonstration --
 
-redApple:mixin(stringutil)
+redApple:mix(stringutil)
 print(redApple:weirdCase(redApple.name)) --> "ApPlE"
 ```
