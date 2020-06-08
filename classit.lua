@@ -1,8 +1,5 @@
-local declared = {}
-local function classit(name, super)
-	assert(type(name) == "string" and not declared[name] and super == nil or type(super) == "string")
-
-	local superClass, class, objectMt = super and assert(declared[super]) or nil, {}, {}
+local function classit(superClass)
+	local class, objectMt = {}, {}
 	local classMt = {
 		__newindex = function(t, i, v)
 			if i:sub(1, 2) == "__" then
@@ -15,35 +12,33 @@ local function classit(name, super)
 			local obj = setmetatable({}, objectMt)
 			obj:init(...)
 			return obj
-		end;
+		end;	
 	}
 
-	class.className = name
-	class.objectMt = objectMt
-
-	if superClass then 
+	if type(superClass) == "table" then 
 		for i, v in pairs(superClass.objectMt) do
 			if i:sub(1, 2) == "__" then
 				objectMt[i] = v
 			end
 		end
-		classMt.__index = superClass.objectMt.__index
+		classMt.__index = superClass
 		class.super = superClass
 	else
+		if superClass ~= nil then print(("superclass not set due to improper argument - %s"):format(debug.traceback())) end
 		function class:init(...) return end
-		function class:is(str)
-			local obj = self
-			while obj do
-				if obj.className == str then return true end
-				obj = obj.super
+		function class:is(tbl0)
+			local tbl1 = getmetatable(self).class
+			while tbl1 do
+				if tbl0 == tbl1 then return true end
+				tbl1 = tbl1.super
 			end
 			return false
-		end
-		function objectMt:__tostring() return self.className end		
+		end	
 	end
-	objectMt.__index = class
 
-	declared[name] = class
+	class.objectMt = objectMt
+	objectMt.__index = class
+	objectMt.class = class
 	return setmetatable(class, classMt)
 end
 
