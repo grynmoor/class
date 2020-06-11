@@ -22,6 +22,11 @@
 	SOFTWARE.
 ]]
 
+-- If true, create global for classit
+local GLOBAL = true
+-- Name of global variable
+local GLOBAL_NAME = "classit"
+
 -- Dictionary for metamethods
 local metamethods = {
 	__index = true;
@@ -110,4 +115,5 @@ local function classit(superClass)
 	return setmetatable(class, classMt)
 end
 
+if GLOBAL then _G[GLOBAL_NAME] = classit end
 return classit
