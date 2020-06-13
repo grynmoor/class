@@ -72,7 +72,7 @@ local function mix(self, ...)
 end	
 
 -- classMt metamethods
--- Any metamethods (or anything under an index starting with "__") set to 'class' will be moved over to 'objectMt'
+-- Any metamethods set to 'class' will be moved over to 'objectMt'
 local function __newindex(t, i, v)
 	if metamethods[i] then
 		t.objectMt[i] = v
