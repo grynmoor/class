@@ -22,11 +22,10 @@
 	SOFTWARE.
 ]]
 
--- If true, create global for classit
+-- If true, create global variable for classit
 local GLOBAL = true
 -- Name of global variable
-local GLOBAL_NAME = "classit"
-
+local GLOBAL_NAME = "class"
 -- Dictionary for metamethods
 local metamethods = {
 	__index = true;
@@ -72,26 +71,26 @@ local function mix(self, ...)
     end
 end	
 
+-- classMt metamethods
+-- Any metamethods (or anything under an index starting with "__") set to 'class' will be moved over to 'objectMt'
+local function __newindex(t, i, v)
+	if metamethods[i] then
+		t.objectMt[i] = v
+	else
+		rawset(t, i, v)
+	end
+end
+-- Used to instantiate objects
+local function __call(t, ...)
+	local obj = setmetatable({}, t.objectMt)
+	obj:init(...)
+	return obj
+end
+
 -- Used to create new classes
 -- Is returned by module
 local function classit(superClass)
-	local class, objectMt = {}, {}
-	local classMt = {
-		-- Any metamethods (or anything under an index starting with "__") set to 'class' will be moved over to 'objectMt'
-		__newindex = function(t, i, v)
-			if metamethods[i] then
-				objectMt[i] = v
-			else
-				rawset(class, i, v)
-			end
-		end;
-		-- Used to instantiate objects
-		__call = function(t, ...)
-			local obj = setmetatable({}, objectMt)
-			obj:init(...)
-			return obj
-		end;	
-	}
+	local class, objectMt, classMt = {}, {}, {__newindex = __newindex; __call = __call}
 	if type(superClass) == "table" then 
 		-- If inheriting, carry over object metamethods from superclass to new class and begin to reference superclass in lookups
 		for i, v in pairs(superClass.objectMt) do
