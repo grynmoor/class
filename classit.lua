@@ -25,7 +25,7 @@
 -- If true, create global variable for classit
 local GLOBAL = true
 -- Name of global variable
-local GLOBAL_NAME = "class"
+local GLOBAL_NAME = "classit"
 -- Dictionary for metamethods
 local metamethods = {
 	__index = true;
