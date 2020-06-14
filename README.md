@@ -1,93 +1,146 @@
 Inspired by rxi's classic module. classit is a Lua module made for easy implementation of classes through just one function!
+
+# Usage
+To begin using the module, you will need to do:
+```lua
+require("classit")
+```
+From there, a global function 'classit' will be created which can be used to create classes. This global can be renamed by changing the **GLOBAL_NAME** variable in classit.lua.
+If the creation of a global is undesired, set the **GLOBAL** variable in classit.lua to false and instead do the following:
 ```lua
 local classit = require("classit")
+```
+The module will return the same function used for creating classes.
 
---------------------------
--- Example fruit object --
-
-local fruit = classit()
-
-function fruit:new(mass, name)
-	assert(type(mass) == "number" and name == nil or type(name) == "string")
-	self.mass = mass
+## Creating a class
+```lua
+local Fruit = classit()
+```
+## Creating a constructor
+```lua
+function Fruit:new(name, mass)
+	if name ~= nil and type(name) ~= "string" then error() end
+	if mass ~= nil and type(mass) ~= "number" then error() end
 	self.name = name or "Fruit"
+	self.mass = mass or 1
+	self.peeled = false
+end
+```
+## Creating a class instance
+```lua
+local newFruit = Fruit("New Fruit", 3)
+print(newFruit.name) -- "New Fruit"
+print(newFruit.mass) -- 3
+print(newFruit.peeled) -- false
+```
+## Creating methods
+```lua
+function Fruit:bite(numTimes)
+	if numTimes == nil then
+		numTimes = 1
+	elseif type(numTimes) ~= "number" then error() end
+	local massLost = 0
+	for i = 1, numTimes do
+		if self.mass <= 0 then return massLost end
+		massLost = math.floor(self.mass * 0.5)
+		self.mass = self.mass - massLost
+	end
+	return massLost
 end
 
-function fruit:bite()
-	self.mass = math.floor(self.mass / 2)
+function Fruit:peel()
+	if self.peeled then return end
+	self.peeled = true
 end
 
-function fruit:__tostring()
-	return ("A very tasty %s that has a mass of %d gram%s."):format(self.name, self.mass, self.mass == 1 and "" or "s")
+-- Example usage
+local newFruit = Fruit(nil, 5)
+print(newFruit.peeled) -- false
+newFruit:peel()
+print(newFruit.peeled) -- true
+print(newFruit.mass) -- 5
+newFruit:bite(2)
+print(newFruit.mass) -- 1
+```
+## Creating metamethods
+```lua
+function Fruit:__tostring()
+	if self.mass > 0 then
+		return ("A %s%s with a mass of %d"):format(self.peeled and "peeled " or "", self.name, self.mass)
+	else 
+		return "There's nothing left!"
+	end
 end
 
-function fruit:__call()
-	self:bite()
+function Fruit:__call(...)
+	return self:bite(...)
 end
 
---------------------------
--- Example apple object --
+-- Example usage
+local newFruit = Fruit("Banana")
+print(newFruit) -- "A Banana with a mass of 1"
+newFruit()
+print(newFruit) -- "There's nothing left!"
+```
+## Creating a subclass
+```lua
+local Pineapple = classit(Fruit)
 
-local apple = classit(fruit) --> class apple inherits from class fruit
+function Pineapple:new(mass, tanginess)
+	Pineapple.super.new(self, "Pineapple", mass)
+	if tanginess ~= nil and type(tanginess) ~= "number" then error() end
+	self.tanginess = tanginess or 50
+end
+```
+## Calling a method from a superclass
+```lua
+function Pineapple:bite(numTimes)
+	if self.peeled then -- You wouldn't eat a pineapple that isn't peeled, would you?
+		Pineapple.super.bite(self, numTimes)
+	end
+end
+```
+## Creating static variables
+```lua
+local Apple = classit(Fruit)
 
-apple.keepsDoctorAway = true -- static variable
+Apple.keepsDoctorAway = true
 
-function apple:new(mass, appleType)
-	apple.super.init(self, mass, "Apple")
-	assert(type(appleType) == "string")
-	self.mass = mass
-	self.appleType = appleType
+function Apple:new(mass)
+	Apple.super.new(self, "Apple", mass)
 end
 
-function apple:__tostring()
-	return ("A very tasty %s %s that has a mass of %d gram%s."):format(self.appleType, self.name, self.mass, self.mass == 1 and "" or "s")
+-- Example usage
+local newApple = Apple()
+print(newApple.keepsDoctorAway) -- true
+```
+## Checking object types
+```lua
+local newPineapple = Pineapple()
+print(newPineapple:is(Apple)) -- false
+print(newPineapple:is(Fruit)) -- true
+print(newPineApple:is(Pineapple)) -- true
+```
+## Creating mix-ins
+```lua
+local StringUtil = classit()
+
+function StringUtil:weirdName()
+	local name = self.name
+	local tbl = {}
+	for i = 1, #name do
+		if i % 2 == 1 then
+			table.insert(tbl, name:sub(i, i):upper())
+		else
+			table.insert(tbl, name:sub(i, i):lower())
+		end
+	end
+	self.name = table.concat(tbl)
 end
 
-------------------------------
--- Example stringutil mixin --
-
-local stringutil = classit()
-
-function stringutil:weirdCase(str)
-    local tbl = {}
-    for i = 1, #str do
-        if i % 2 == 1 then
-            table.insert(tbl, str:sub(i, i):upper())
-        else
-           table.insert(tbl, str:sub(i, i):lower())
-        end
-    end
-    return table.concat(tbl)
-end
-
--------------------------
--- Fruit demonstration --
-
-local tastyFruit = fruit(4) --> Creates fruit object with a mass of 4 and the name "Fruit"
-print(tastyFruit) --> "A very tasty Fruit that has a mass of 4 grams."
-print(tastyFruit:is(fruit)) --> true
-print(tastyFruit:is(apple)) --> false
-tastyFruit:bite() --> Halves then rounds down the mass of the fruit object
-print(tastyFruit) --> "A very tasty Fruit that has a mass of 2 grams."
-tastyFruit() --> Calls tastyFruit:bite()
-print(tastyFruit) --> "A very tasty Fruit that has a mass of 1 gram."
-
--------------------------
--- Apple demonstration --
-
-local redApple = apple(10, "Red") --> Creates apple object with a mass of 10, the name "Apple", and apple type "Red"
-print(redApple) --> "A very tasty Red Apple that has a mass of 10 grams."
-print(redApple:is(fruit)) --> true
-print(redApple:is(apple)) --> true
-redApple:bite() --> Halves then rounds down the mass of the fruit object
-print(redApple) --> "A very tasty Red Apple that has a mass of 5 grams."
-redApple() --> Calls redApple:bite()
-print(redApple) --> A very tasty Red Apple that has a mass of 2 grams.
-print(redApple.keepsDoctorAway) --> true
-
--------------------------
--- Mixin demonstration --
-
-redApple:mix(stringutil)
-print(redApple:weirdCase(redApple.name)) --> "ApPlE"
+-- Example usage
+local newPineapple = Pineapple()
+newPineapple:mix(StringUtil)
+newPineapple:weirdName()
+print(newPineapple.name) -- PiNeApPlE
 ```
