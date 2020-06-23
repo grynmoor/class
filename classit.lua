@@ -21,9 +21,12 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
 ]]
-local pairs, type, rawset, setmetatable = pairs, type, rawset, setmetatable -- micro-optimize for the lulz
+
+local pairs, type, rawset, setmetatable = pairs, type, rawset, setmetatable
+
 local GLOBAL = true -- If true, create global variable for classit
 local GLOBAL_NAME = 'classit' -- Name of global variable
+
 local META = { -- Hash table for metamethods
 	__index = true;
 	__newindex = true;
@@ -43,6 +46,7 @@ local META = { -- Hash table for metamethods
 	__le = true;
 	__mode = true;
 }
+
 local BASE = { -- Base data that all classes will have
 	new = function(self, ...) end; -- :new(...) is used for constructing classes, being called immediately after the initialization of a new object
 	is = function(self, other) -- Type-check method for classes
@@ -63,8 +67,10 @@ local BASE = { -- Base data that all classes will have
 	    end
 	end;
 }
+
 local function classit(super) -- Used to create new classes, is returned by module
 	super = (super == nil or type(super) == 'table') and super or nil
+
 	local class, classMt, objectMt = {}, {}, {}
 	class.class, class.super, class.objectMt = class, super, objectMt
 	classMt.__index = super 
@@ -80,6 +86,7 @@ local function classit(super) -- Used to create new classes, is returned by modu
 		obj:new(...)
 		return obj
 	end
+
 	if super then -- If inheriting, carry over object metamethods from super to new class
 		for i, v in pairs(super.objectMt) do
 			if META[i] then objectMt[i] = v end
@@ -87,8 +94,11 @@ local function classit(super) -- Used to create new classes, is returned by modu
 	else -- If not inheriting, implement base data
 		for i, v in pairs(BASE) do class[i] = v end
 	end
+
 	objectMt.__index = class
 	return setmetatable(class, classMt)
 end
-if GLOBAL then rawset(_G, GLOBAL_NAME, classit) end
+
+if GLOBAL then _G[GLOBAL_NAME] = classit end
+
 return classit
