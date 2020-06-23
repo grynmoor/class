@@ -119,7 +119,7 @@ print(newApple.keepsDoctorAway) -- true
 local newPineapple = Pineapple()
 print(newPineapple:is(Apple)) -- false
 print(newPineapple:is(Fruit)) -- true
-print(newPineApple:is(Pineapple)) -- true
+print(newPineapple:is(Pineapple)) -- true
 ```
 ## Creating mix-ins
 ```lua
