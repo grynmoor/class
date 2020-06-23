@@ -4,7 +4,7 @@
 	Copyright (c) 2020 grynmoor
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
+	of this software and associated documentation files (the 'Software'), to deal
 	in the Software without restriction, including without limitation the rights
 	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 	copies of the Software, and to permit persons to whom the Software is
@@ -13,7 +13,7 @@
 	The above copyright notice and this permission notice shall be included in all
 	copies or substantial portions of the Software.
 
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -23,7 +23,7 @@
 ]]
 local pairs, type, rawset, setmetatable = pairs, type, rawset, setmetatable -- micro-optimize for the lulz
 local GLOBAL = true -- If true, create global variable for classit
-local GLOBAL_NAME = "classit" -- Name of global variable
+local GLOBAL_NAME = 'classit' -- Name of global variable
 local META = { -- Hash table for metamethods
 	__index = true;
 	__newindex = true;
@@ -56,7 +56,7 @@ local BASE = { -- Base data that all classes will have
 	mix = function(self, ...) -- Minimal support for mixins
 	    for _, item in pairs({...}) do
 	        for i, v in pairs(item) do
-	            if self[i] == nil and type(v) == "function" then
+	            if self[i] == nil and type(v) == 'function' then
 	                self[i] = v
 	            end
 	        end
@@ -64,7 +64,7 @@ local BASE = { -- Base data that all classes will have
 	end;
 }
 local function classit(super) -- Used to create new classes, is returned by module
-	super = (super == nil or type(super) == "table") and super or nil
+	super = (super == nil or type(super) == 'table') and super or nil
 	local class, classMt, objectMt = {}, {}, {}
 	class.class, class.super, class.objectMt = class, super, objectMt
 	classMt.__index = super 
