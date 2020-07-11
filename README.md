@@ -6,7 +6,7 @@ To begin using the module, you will need to do:
 require("class")
 ```
 From there, a global function 'newclass' will be created which can be used to create classes. This global can be renamed by changing the **GLOBAL_NAME** variable in class.lua.
-If the creation of a global is undesired, set the **GLOBAL** variable in class.lua to false and instead do the following:
+If the creation of a global is undesired, set the **GLOBAL** variable in class.lua to nil and instead do the following:
 ```lua
 local newclass = require("class")
 ```
