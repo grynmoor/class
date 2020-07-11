@@ -1,20 +1,20 @@
-Inspired by rxi's classic module. classit is a Lua module made for easy implementation of classes through just one function!
+A Lua module made for easy implementation of classes through just one function.
 
 # Usage
 To begin using the module, you will need to do:
 ```lua
-require("classit")
+require("class")
 ```
-From there, a global function 'classit' will be created which can be used to create classes. This global can be renamed by changing the **GLOBAL_NAME** variable in classit.lua.
+From there, a global function 'newclass' will be created which can be used to create classes. This global can be renamed by changing the **GLOBAL_NAME** variable in class.lua.
 If the creation of a global is undesired, set the **GLOBAL** variable in classit.lua to false and instead do the following:
 ```lua
-local classit = require("classit")
+local newclass = require("class")
 ```
 The module will return the same function used for creating classes.
 
 ## Creating a class
 ```lua
-local Fruit = classit()
+local Fruit = newclass()
 ```
 ## Creating a constructor
 ```lua
@@ -102,7 +102,7 @@ end
 ```
 ## Creating static variables
 ```lua
-local Apple = classit(Fruit)
+local Apple = newclass(Fruit)
 
 Apple.keepsDoctorAway = true
 
@@ -123,7 +123,7 @@ print(newPineapple:is(Pineapple)) -- true
 ```
 ## Creating mix-ins
 ```lua
-local StringUtil = classit()
+local StringUtil = newclass()
 
 function StringUtil:weirdName()
 	local name = self.name
