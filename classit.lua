@@ -24,10 +24,22 @@
 
 local pairs, type, rawset, setmetatable = pairs, type, rawset, setmetatable
 
-local GLOBAL = true -- If true, create global variable for classit
-local GLOBAL_NAME = 'classit' -- Name of global variable
+local NEWCLASS_GLOBAL = 'newclass' -- Name of global variable, set to nil if no global is desired
 
-local META = { -- Hash table for metamethods
+local base = { -- Base data that all classes will have. Overriding this data may break classes or bring unexpected results.
+	class = nil;
+	super = nil;
+	new = function(self, ...) end; -- Used as a constructor when instantiating new instances
+	is = function(self, other) -- Type-check method for classes
+		local class = self.class
+		while class do
+			if class == other then return true end
+			class = class.super
+		end
+		return false
+	end;
+}
+local meta = { -- Used to filter metamethods
 	__index = true;
 	__newindex = true;
 	__call = true;
@@ -47,58 +59,39 @@ local META = { -- Hash table for metamethods
 	__mode = true;
 }
 
-local BASE = { -- Base data that all classes will have
-	new = function(self, ...) end; -- :new(...) is used for constructing classes, being called immediately after the initialization of a new object
-	is = function(self, other) -- Type-check method for classes
-		local class = self.class 
-		while class do
-			if other == class then return true end
-			class = class.super
-		end
-		return false
-	end;	
-	mix = function(self, ...) -- Minimal support for mixins
-	    for _, item in pairs({...}) do
-	        for i, v in pairs(item) do
-	            if self[i] == nil and type(v) == 'function' then
-	                self[i] = v
-	            end
-	        end
-	    end
-	end;
-}
+local function newclass(super) -- Used to create new classes, is returned by module
+	if not isclass(super) or not super.class == super then super = nil end
 
-local function classit(super) -- Used to create new classes, is returned by module
-	super = (super == nil or type(super) == 'table') and super or nil
+	local class, classMt, instanceMt = {}, {}, {}
 
-	local class, classMt, objectMt = {}, {}, {}
-	class.class, class.super, class.objectMt = class, super, objectMt
-	classMt.__index = super 
-	classMt.__newindex = function(t, i, v) -- Any metamethods set to 'class' will be moved over to 'objectMt'
-		if META[i] then
-			objectMt[i] = v
+	class.class = class
+	class.instanceMt = instanceMt
+
+	classMt.__newindex = function(t, i, v) -- Any metamethods set to 'class' will be moved over to 'instanceMt'
+		if meta[i] then
+			instanceMt[i] = v
 		else
 			rawset(t, i, v)
 		end
 	end
-	classMt.__call = function(t, ...) -- Used to instantiate objects
-		local obj = setmetatable({}, objectMt)
-		obj:new(...)
-		return obj
+	classMt.__call = function(t, ...) -- Used to instantiate new instances
+		local instance = setmetatable({}, instanceMt)
+		instance:new(...)
+		return instance
 	end
 
-	if super then -- If inheriting, carry over object metamethods from super to new class
-		for i, v in pairs(super.objectMt) do
-			if META[i] then objectMt[i] = v end
-		end
+	if super then -- If inheriting, carry over instance metamethods from super to new class
+		class.super = super
+		classMt.__index = super 
+		for i, v in pairs(super.instanceMt) do instanceMt[i] = v end
 	else -- If not inheriting, implement base data
-		for i, v in pairs(BASE) do class[i] = v end
+		for i, v in pairs(base) do class[i] = v end
 	end
+	instanceMt.__index = class
 
-	objectMt.__index = class
 	return setmetatable(class, classMt)
 end
 
-if GLOBAL then _G[GLOBAL_NAME] = classit end
+if type(NEWCLASS_GLOBAL) == "string" then _G[NEWCLASS_GLOBAL] = newclass end
 
-return classit
+return newclass
