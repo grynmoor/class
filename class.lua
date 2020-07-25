@@ -22,14 +22,10 @@
 	SOFTWARE.
 ]]
 
-local pairs, type, rawset, setmetatable = pairs, type, rawset, setmetatable
-
-local NEWCLASS_GLOBAL = 'newclass' -- Name of global variable, set to nil if no global is desired
-
-local base = { -- Base data that all classes will have. Overriding this data may break classes or bring unexpected results.
+local base = { -- Base data that all classes will have.
 	class = nil;
 	super = nil;
-	new = function(self, ...) end; -- Used as a constructor when instantiating new instances
+ 	new = function(self, ...) end; -- Used as a constructor when instantiating new instances
 	is = function(self, other) -- Type-check method for classes
 		local class = self.class
 		while class do
@@ -60,8 +56,6 @@ local meta = { -- Used to filter metamethods
 }
 
 local function newclass(super) -- Used to create new classes, is returned by module
-	if not isclass(super) or not super.class == super then super = nil end
-
 	local class, classMt, instanceMt = {}, {}, {}
 
 	class.class = class
@@ -91,7 +85,5 @@ local function newclass(super) -- Used to create new classes, is returned by mod
 
 	return setmetatable(class, classMt)
 end
-
-if type(NEWCLASS_GLOBAL) == "string" then _G[NEWCLASS_GLOBAL] = newclass end
 
 return newclass
