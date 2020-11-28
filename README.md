@@ -3,16 +3,16 @@ A Lua module made for easy implementation of classes through just one function.
 # Usage
 To begin using the module, you will need to do:
 ```lua
-local newclass = require('class')
+local class = require('class')
 ```
 
 ## Creating a class
 ```lua
-local Fruit = newclass()
+local Fruit = class()
 ```
 ## Creating a constructor
 ```lua
-function Fruit:new(name, mass)
+function Fruit:init(name, mass)
 	self.name = name or 'Fruit'
 	self.mass = mass or 1
 	self.peeled = false
@@ -76,25 +76,25 @@ print(newFruit) -- "There's nothing left!"
 ```lua
 local Pineapple = class(Fruit)
 
-function Pineapple:new(mass, tanginess)
-	Pineapple.super.new(self, 'Pineapple', mass)
+function Pineapple:init(mass, tanginess)
+	Pineapple.super.init(self, 'Pineapple', mass)
 	self.tanginess = tanginess or 50
 end
 ```
 ## Calling a method from a superclass
 ```lua
 function Pineapple:bite(numTimes)
-	if self.peeled then Pineapple.super.bite(self, numTimes) end -- You wouldn't eat a pineapple that isn't peeled, would you?
+	if self.peeled then self.super.bite(self, numTimes) end -- You wouldn't eat a pineapple that isn't peeled, would you?
 end
 ```
 ## Creating static variables
 ```lua
-local Apple = newclass(Fruit)
+local Apple = class(Fruit)
 
 Apple.keepsDoctorAway = true
 
-function Apple:new(mass)
-	Apple.super.new(self, 'Apple', mass)
+function Apple:init(mass)
+	Apple.super.init(self, 'Apple', mass)
 end
 
 -- Example usage
