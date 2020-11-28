@@ -1,41 +1,5 @@
---[[
-	MIT License
-
-	Copyright (c) 2020 grynmoor
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the 'Software'), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
-]]
-
-local base = { -- Base data that all classes will have.
-	class = nil;
-	super = nil;
- 	new = function(self, ...) end; -- Used as a constructor when instantiating new instances
-	is = function(self, other) -- Type-check method for classes
-		local class = self.class
-		while class do
-			if class == other then return true end
-			class = class.super
-		end
-		return false
-	end;
-}
-local meta = { -- Used to filter metamethods
+-- lookup table used for filtering metamethods
+local metamethods = {
 	__index = true;
 	__newindex = true;
 	__call = true;
@@ -53,37 +17,63 @@ local meta = { -- Used to filter metamethods
 	__lt = true;
 	__le = true;
 	__mode = true;
+	__gc = true;
+	__len = true;
 }
 
-local function newclass(super) -- Used to create new classes, is returned by module
-	local class, classMt, instanceMt = {}, {}, {}
+-- base object class
+local Object = {
+	mtClass = {
+		__newindex = function(self, i, v)
+			if metamethods[i] then self.mtInstance[i] = v else rawset(self, i, v) end
+		end;
+		__call = function(self, i, v)
+			return self:wrap({}, ...)
+		end;
+	};
+	mtInstance = {};
+}
+setmetatable(Object, Object.mtClass)
 
-	class.class = class
-	class.instanceMt = instanceMt
+function Object:init(...)
 
-	classMt.__newindex = function(t, i, v) -- Any metamethods set to 'class' will be moved over to 'instanceMt'
-		if meta[i] then
-			instanceMt[i] = v
-		else
-			rawset(t, i, v)
-		end
-	end
-	classMt.__call = function(t, ...) -- Used to instantiate new instances
-		local instance = setmetatable({}, instanceMt)
-		instance:new(...)
-		return instance
-	end
-
-	if super then -- If inheriting, carry over instance metamethods from super to new class
-		class.super = super
-		classMt.__index = super 
-		for i, v in pairs(super.instanceMt) do instanceMt[i] = v end
-	else -- If not inheriting, implement base data
-		for i, v in pairs(base) do class[i] = v end
-	end
-	instanceMt.__index = class
-
-	return setmetatable(class, classMt)
 end
 
-return newclass
+function Object:wrap(t, ...)
+	setmetatable(t, self.mtInstance)
+	t:init(...)
+	return t
+end
+
+function Object:unwrap()
+	setmetatable(self, nil)
+	for i in pairs(self) do self[i] = nil end
+	return self
+end
+
+function Object:isA(class)
+	c = self.class
+	while c do
+		if c == class then return true end
+		c = c.super
+	end
+	return false
+end
+
+-- constructor
+return function(super)
+	if not super then super = Object end
+
+	local class = {super = super}
+	class.class = class
+
+	local mtClass = {__index = super}
+	for i, v in pairs(super.mtClass) do mtClass[i] = v end
+	class.mtClass = mtClass
+
+	local mtInstance = {__index = class}
+	for i, v in pairs(super.mtInstance) do mtInstance[i] = v end
+	class.mtInstance = mtInstance
+
+	return setmetatable(class, mtClass)
+end
