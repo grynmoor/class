@@ -27,7 +27,7 @@ local Object = {
 		__newindex = function(self, i, v)
 			if metamethods[i] then self.mtInstance[i] = v else rawset(self, i, v) end
 		end;
-		__call = function(self, i, v)
+		__call = function(self, ...)
 			return self:wrap({}, ...)
 		end;
 	};
