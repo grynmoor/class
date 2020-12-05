@@ -27,7 +27,7 @@ local Object = {
 		__newindex = function(self, i, v)
 			if metamethods[i] then self.mtInstance[i] = v else rawset(self, i, v) end
 		end;
-		__call = function(self, i, v)
+		__call = function(self, ...)
 			return self:wrap({}, ...)
 		end;
 	};
@@ -67,12 +67,14 @@ return function(super)
 	local class = {super = super}
 	class.class = class
 
-	local mtClass = {__index = super}
+	local mtClass = {}
 	for i, v in pairs(super.mtClass) do mtClass[i] = v end
+	mtClass.__index = super
 	class.mtClass = mtClass
 
-	local mtInstance = {__index = class}
+	local mtInstance = {}
 	for i, v in pairs(super.mtInstance) do mtInstance[i] = v end
+	mtInstance.__index = class
 	class.mtInstance = mtInstance
 
 	return setmetatable(class, mtClass)
