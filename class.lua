@@ -51,7 +51,7 @@ function Object:unwrap()
 	return self
 end
 
-function Object:isA(class)
+function Object:is(class)
 	c = self.class
 	while c do
 		if c == class then return true end
