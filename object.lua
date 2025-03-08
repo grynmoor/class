@@ -1,3 +1,4 @@
+
 local metamethods = { --- Lookup table used for filtering metamethods
 	__index = true;
 	__newindex = true;
@@ -21,23 +22,30 @@ local metamethods = { --- Lookup table used for filtering metamethods
 }
 
 ---@class Object
-local Object = {} --- Base object class
+local Object = {} 			--- Base object class
 
-Object.class = Object --- Class reference
-Object.super = nil --- Superclass reference
-Object.metaclass = {}; --- Container for metamethods that affect the class
-Object.metainstance = {}; --- Container for metamethods that affect class instances
+Object.class = Object 		--- Class reference
+Object.classname = "Object" --- Class string identifier
+Object.super = nil 			--- Superclass reference
+Object._metaclass = {}; 	--- Private container for metamethods which affect the class
+Object._metainstance = {}; 	--- Private container for metamethods which affect class instances
 
 
 --- Moves defined metamethods into the appropriate instance container
-function Object.metaclass:__newindex(i, v)
+function Object._metaclass:__newindex(i, v)
     if metamethods[i] then self.metainstance[i] = v else rawset(self, i, v) end
 end
 
 
 --- Creates a new instance when this class is called like a method
-function Object.metaclass:__call(...)
+function Object._metaclass:__call(...)
     return self:wrap({}, ...)
+end
+
+
+--- Returns the string identifier for this class
+function Object._metaclass:__tostring()
+	return self.classname
 end
 
 
@@ -54,7 +62,7 @@ function Object:wrap(t, ...)
 
     if s then s:wrap(t, ...) end
 
-    setmetatable(t, c.metainstance)
+    setmetatable(t, c._metainstance)
     if rawget(c, "new") then c.new(t, ...) end
 	return t
 end
@@ -76,22 +84,22 @@ end
 --- Class method. Returns a new class that inherits behavior from this class
 function Object:extend()
     local c = self.class
-	
+
 	local NewClass = {}
 
     NewClass.class = NewClass
     NewClass.super = c
-    NewClass.metaclass = {}
-    NewClass.metainstance = {}
+    NewClass._metaclass = {}
+    NewClass._metainstance = {}
 
-	for i, v in pairs(c.metaclass) do NewClass.metaclass[i] = v end
-	NewClass.metaclass.__index = c
+	for i, v in pairs(c._metaclass) do NewClass._metaclass[i] = v end
+	NewClass._metaclass.__index = c
 
-	for i, v in pairs(c.metainstance) do NewClass.metainstance[i] = v end
-	NewClass.metainstance.__index = NewClass
+	for i, v in pairs(c._metainstance) do NewClass._metainstance[i] = v end
+	NewClass._metainstance.__index = NewClass
 
-	return setmetatable(NewClass, NewClass.metaclass)
+	return setmetatable(NewClass, NewClass._metaclass)
 end
 
 
-return setmetatable(Object, Object.metaclass)
+return setmetatable(Object, Object._metaclass)
