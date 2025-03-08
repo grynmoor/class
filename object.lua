@@ -33,7 +33,7 @@ Object._metainstance = {}; 	--- Private container for metamethods which affect c
 
 --- Moves defined metamethods into the appropriate instance container
 function Object._metaclass:__newindex(i, v)
-    if metamethods[i] then self.metainstance[i] = v else rawset(self, i, v) end
+    if metamethods[i] then self._metainstance[i] = v else rawset(self, i, v) end
 end
 
 
