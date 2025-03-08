@@ -3,16 +3,16 @@ A Lua module made for easy implementation of classes through just one function.
 # Usage
 To begin using the module, you will need to do:
 ```lua
-local class = require('class')
+local Object = require('object')
 ```
 
 ## Creating a class
 ```lua
-local Fruit = class()
+local Fruit = Object:extend()
 ```
 ## Creating a constructor
 ```lua
-function Fruit:init(name, mass)
+function Fruit:new(name, mass)
 	self.name = name or 'Fruit'
 	self.mass = mass or 1
 	self.peeled = false
@@ -74,10 +74,9 @@ print(newFruit) -- "There's nothing left!"
 ```
 ## Creating a subclass
 ```lua
-local Pineapple = class(Fruit)
+local Pineapple = Fruit:extend()
 
-function Pineapple:init(mass, tanginess)
-	Pineapple.super.init(self, 'Pineapple', mass)
+function Pineapple:new(mass, tanginess)
 	self.tanginess = tanginess or 50
 end
 ```
@@ -89,13 +88,9 @@ end
 ```
 ## Creating static variables
 ```lua
-local Apple = class(Fruit)
+local Apple = Fruit:extend()
 
 Apple.keepsDoctorAway = true
-
-function Apple:init(mass)
-	Apple.super.init(self, 'Apple', mass)
-end
 
 -- Example usage
 local newApple = Apple()
