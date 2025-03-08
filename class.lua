@@ -76,7 +76,7 @@ end
 --- Class method. Returns a new class that inherits behavior from this class
 function Object:extend()
     local c = self.class
-
+	
 	local NewClass = {}
 
     NewClass.class = NewClass
