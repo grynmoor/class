@@ -18,32 +18,37 @@ local _METAMETHODS = { --- Lookup table used for filtering metamethods
     __le = true;
     __mode = true;
     __gc = true;
-    __len = true;
-}
+    __len = true;}
 
 
 ---@class Object
 local Object = {}               --- Base object class
 
-Object.class = Object           --- Class reference
+Object.class = Object           --- Class reference. Also assigned to instances
 Object.classname = "Object"     --- Class string identifier
-Object.super = nil              --- Superclass reference
-Object._metaclass = {};         --- Private table for metamethods which affect the class
-Object._metainstance = {};      --- Private table for metamethods which affect class instances
+Object.super = false            --- Superclass reference
+Object._metaclass = {};         --- Container for class metamethods
 
 setmetatable(Object, Object._metaclass)
-Object._metainstance.__index = Object
 
 
---- Moves defined metamethods into the appropriate instance table
-function Object._metaclass:__newindex(i, v)
-    if _METAMETHODS[i] then self._metainstance[i] = v else rawset(self, i, v) end
+--- Allows classes to access variables from the class they inherit from
+function Object._metaclass:__index(i)
+    local s = self.super
+    if s then return s[i] end
 end
 
 
---- Creates a new instance when this class is called like a method
+--- Creates a new instance when this class is called like a function
 function Object._metaclass:__call(...)
     return self:wrap({}, ...)
+end
+
+
+--- Allows instances to access class variables.
+--- getmetatable() should be used in __index functions to reference the correct class when the function is inherited
+function Object:__index(i)
+    return getmetatable(self)[i]
 end
 
 
@@ -62,11 +67,11 @@ end
 --- Class method. Wraps the provided table into a class instance
 function Object:wrap(t, ...)
     local c = self.class
-    local s = self.super
+    local s = c.super
 
     if s then s:wrap(t, ...) end
 
-    setmetatable(t, c._metainstance)
+    setmetatable(t, c)
     if rawget(c, "new") then c.new(t, ...) end
     return t
 end
@@ -94,16 +99,14 @@ function Object:extend()
     NewClass.class = NewClass
     NewClass.super = c
     NewClass._metaclass = {}
-    NewClass._metainstance = {}
 
-    for i, v in pairs(c._metaclass) do NewClass._metaclass[i] = v end
-    NewClass._metaclass.__index = c
-    setmetatable(NewClass, NewClass._metaclass)
+    -- Copy over class and instance metamethods
+    for i, _ in pairs(_METAMETHODS) do
+        NewClass._metaclass[i] = rawget(c._metaclass, i)
+        NewClass[i] = rawget(c, i)
+    end
 
-    for i, v in pairs(c._metainstance) do NewClass._metainstance[i] = v end
-    NewClass._metainstance.__index = NewClass
-
-    return NewClass
+    return setmetatable(NewClass, NewClass._metaclass)
 end
 
 
