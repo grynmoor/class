@@ -1,5 +1,5 @@
--- lookup table used for filtering metamethods
-local metamethods = {
+
+local metamethods = { --- Lookup table used for filtering metamethods
 	__index = true;
 	__newindex = true;
 	__call = true;
@@ -21,61 +21,77 @@ local metamethods = {
 	__len = true;
 }
 
--- base object class
-local Object = {
-	mtClass = {
-		__newindex = function(self, i, v)
-			if metamethods[i] then self.mtInstance[i] = v else rawset(self, i, v) end
-		end;
-		__call = function(self, ...)
-			return self:wrap({}, ...)
-		end;
-	};
-	mtInstance = {};
-}
-setmetatable(Object, Object.mtClass)
+local Object = {} --- Base object class
 
-function Object:init(...)
+Object.class = Object --- Class reference
+Object.super = nil --- Superclass reference
+Object.metaclass = {}; --- Container for metamethods that affect the class
+Object.metainstance = {}; --- Container for metamethods that affect class instances
+
+
+--- Moves defined metamethods into the appropriate instance container
+function Object.metaclass:__newindex(i, v)
+    if metamethods[i] then self.metainstance[i] = v else rawset(self, i, v) end
+end
+
+
+--- Creates a new instance when this class is called like a method
+function Object.metaclass:__call(...)
+    return self:wrap({}, ...)
+end
+
+
+--- Instance constructor. Behavior can be defined in extending classes
+function Object:new(...)
 
 end
 
+
+--- Class method. Wraps the provided table into a class instance
 function Object:wrap(t, ...)
-	setmetatable(t, self.mtInstance)
-	t:init(...)
+    local c = self.class
+    local s = self.super
+
+    if s then s:wrap(t, ...) end
+
+    setmetatable(t, c.metainstance)
+    if rawget(c, "new") then t:new(...) end
 	return t
 end
 
-function Object:unwrap()
-	setmetatable(self, nil)
-	for i in pairs(self) do self[i] = nil end
-	return self
-end
 
+--- Class method. Returns true if this class is equal to or inherits from the provided class
 function Object:is(class)
-	c = self.class
+	local c = self.class
+
 	while c do
 		if c == class then return true end
 		c = c.super
 	end
+
 	return false
 end
 
--- constructor
-return function(super)
-	if not super then super = Object end
 
-	local class = {super = super}
-	class.class = class
+--- Class method. Returns a new class that inherits behavior from this class
+function Object:extend()
+    local c = self.class
 
-	local mtClass = {}
-	for i, v in pairs(super.mtClass) do mtClass[i] = v end
-	mtClass.__index = super
-	class.mtClass = mtClass
+	local NewClass = {}
 
-	local mtInstance = {}
-	for i, v in pairs(super.mtInstance) do mtInstance[i] = v end
-	mtInstance.__index = class
-	class.mtInstance = mtInstance
+    NewClass.class = NewClass
+    NewClass.super = c
+    NewClass.metaclass = {}
+    NewClass.metainstance = {}
 
-	return setmetatable(class, mtClass)
+	for i, v in pairs(c.metaclass) do NewClass.metaclass[i] = v end
+	NewClass.metaclass.__index = c
+
+	for i, v in pairs(c.metainstance) do NewClass.metainstance[i] = v end
+	NewClass.metainstance.__index = NewClass
+
+	return setmetatable(NewClass, NewClass.metaclass)
 end
+
+
+return setmetatable(Object, Object.metaclass)
