@@ -21,17 +21,21 @@ local metamethods = { --- Lookup table used for filtering metamethods
 	__len = true;
 }
 
+
 ---@class Object
-local Object = {} 			--- Base object class
+local Object = {} 				--- Base object class
 
-Object.class = Object 		--- Class reference
-Object.classname = "Object" --- Class string identifier
-Object.super = nil 			--- Superclass reference
-Object._metaclass = {}; 	--- Private container for metamethods which affect the class
-Object._metainstance = {}; 	--- Private container for metamethods which affect class instances
+Object.class = Object 			--- Class reference
+Object.classname = "Object" 	--- Class string identifier
+Object.super = nil 				--- Superclass reference
+Object._metaclass = {}; 		--- Private table for metamethods which affect the class
+Object._metainstance = {}; 		--- Private table for metamethods which affect class instances
+
+setmetatable(Object, Object._metaclass)
+Object._metainstance.__index = Object
 
 
---- Moves defined metamethods into the appropriate instance container
+--- Moves defined metamethods into the appropriate instance table
 function Object._metaclass:__newindex(i, v)
     if metamethods[i] then self._metainstance[i] = v else rawset(self, i, v) end
 end
@@ -43,8 +47,8 @@ function Object._metaclass:__call(...)
 end
 
 
---- Returns the string identifier for this class
-function Object._metaclass:__tostring()
+--- Returns the class string identifier when instances are cast to string
+function Object:__tostring()
 	return self.classname
 end
 
@@ -94,12 +98,13 @@ function Object:extend()
 
 	for i, v in pairs(c._metaclass) do NewClass._metaclass[i] = v end
 	NewClass._metaclass.__index = c
+	setmetatable(NewClass, NewClass._metaclass)
 
 	for i, v in pairs(c._metainstance) do NewClass._metainstance[i] = v end
 	NewClass._metainstance.__index = NewClass
 
-	return setmetatable(NewClass, NewClass._metaclass)
+	return NewClass
 end
 
 
-return setmetatable(Object, Object._metaclass)
+return Object
