@@ -90,7 +90,7 @@ function Object:is(class)
 end
 
 
---- Class method. Returns a new class that inherits behavior from this class
+--- Class method. Returns a new class that inherits from this class
 function Object:extend()
     local c = self.class
 
