@@ -1,5 +1,5 @@
 
-local metamethods = { --- Lookup table used for filtering metamethods
+local _METAMETHODS = { --- Lookup table used for filtering metamethods
     __index = true;
     __newindex = true;
     __call = true;
@@ -37,7 +37,7 @@ Object._metainstance.__index = Object
 
 --- Moves defined metamethods into the appropriate instance table
 function Object._metaclass:__newindex(i, v)
-    if metamethods[i] then self._metainstance[i] = v else rawset(self, i, v) end
+    if _METAMETHODS[i] then self._metainstance[i] = v else rawset(self, i, v) end
 end
 
 
