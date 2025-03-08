@@ -37,13 +37,13 @@ Object._metainstance.__index = Object
 
 --- Moves defined metamethods into the appropriate instance table
 function Object._metaclass:__newindex(i, v)
-    if metamethods[i] then self._metainstance[i] = v else rawset(self, i, v) end
+	if metamethods[i] then self._metainstance[i] = v else rawset(self, i, v) end
 end
 
 
 --- Creates a new instance when this class is called like a method
 function Object._metaclass:__call(...)
-    return self:wrap({}, ...)
+	return self:wrap({}, ...)
 end
 
 
@@ -61,13 +61,13 @@ end
 
 --- Class method. Wraps the provided table into a class instance
 function Object:wrap(t, ...)
-    local c = self.class
-    local s = self.super
+	local c = self.class
+	local s = self.super
 
-    if s then s:wrap(t, ...) end
+	if s then s:wrap(t, ...) end
 
-    setmetatable(t, c._metainstance)
-    if rawget(c, "new") then c.new(t, ...) end
+	setmetatable(t, c._metainstance)
+	if rawget(c, "new") then c.new(t, ...) end
 	return t
 end
 
@@ -87,14 +87,14 @@ end
 
 --- Class method. Returns a new class that inherits behavior from this class
 function Object:extend()
-    local c = self.class
+	local c = self.class
 
 	local NewClass = {}
 
-    NewClass.class = NewClass
-    NewClass.super = c
-    NewClass._metaclass = {}
-    NewClass._metainstance = {}
+	NewClass.class = NewClass
+	NewClass.super = c
+	NewClass._metaclass = {}
+	NewClass._metainstance = {}
 
 	for i, v in pairs(c._metaclass) do NewClass._metaclass[i] = v end
 	NewClass._metaclass.__index = c
