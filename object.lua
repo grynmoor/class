@@ -29,8 +29,6 @@ Object.classname = "Object"     --- Class string identifier
 Object.super = false            --- Superclass reference
 Object._metaclass = {};         --- Container for class metamethods
 
-setmetatable(Object, Object._metaclass)
-
 
 --- Allows classes to access variables from the class they inherit from
 function Object._metaclass:__index(i)
@@ -110,4 +108,4 @@ function Object:extend()
 end
 
 
-return Object
+return setmetatable(Object, Object._metaclass)
