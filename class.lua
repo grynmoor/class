@@ -1,4 +1,3 @@
-
 local metamethods = { --- Lookup table used for filtering metamethods
 	__index = true;
 	__newindex = true;
@@ -21,6 +20,7 @@ local metamethods = { --- Lookup table used for filtering metamethods
 	__len = true;
 }
 
+---@class Object
 local Object = {} --- Base object class
 
 Object.class = Object --- Class reference
@@ -55,7 +55,7 @@ function Object:wrap(t, ...)
     if s then s:wrap(t, ...) end
 
     setmetatable(t, c.metainstance)
-    if rawget(c, "new") then t:new(...) end
+    if rawget(c, "new") then c.new(t, ...) end
 	return t
 end
 
