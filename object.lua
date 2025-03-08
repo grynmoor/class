@@ -23,13 +23,13 @@ local metamethods = { --- Lookup table used for filtering metamethods
 
 
 ---@class Object
-local Object = {} 				--- Base object class
+local Object = {}               --- Base object class
 
-Object.class = Object 			--- Class reference
-Object.classname = "Object" 	--- Class string identifier
-Object.super = nil 				--- Superclass reference
-Object._metaclass = {}; 		--- Private table for metamethods which affect the class
-Object._metainstance = {}; 		--- Private table for metamethods which affect class instances
+Object.class = Object           --- Class reference
+Object.classname = "Object"     --- Class string identifier
+Object.super = nil              --- Superclass reference
+Object._metaclass = {};         --- Private table for metamethods which affect the class
+Object._metainstance = {};      --- Private table for metamethods which affect class instances
 
 setmetatable(Object, Object._metaclass)
 Object._metainstance.__index = Object
